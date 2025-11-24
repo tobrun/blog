@@ -8,7 +8,10 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags = [] } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+const withBase = (path = '') => `${normalizedBase}/${path.replace(/^\/+/, '')}`;
 ---
 
 <html lang="en">
@@ -16,41 +19,101 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<BaseHead title={title} description={description} />
 		<style>
 			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
+				padding: 0;
 			}
-			.hero-image {
-				width: 100%;
+
+			.hero {
+				position: relative;
+				overflow: hidden;
+				border-bottom: 1px solid var(--border);
+				background: linear-gradient(160deg, rgba(139, 92, 246, 0.15), rgba(9, 13, 26, 0.8)),
+					linear-gradient(0deg, rgba(34, 211, 238, 0.08), rgba(34, 211, 238, 0.06));
 			}
-			.hero-image img {
-				display: block;
+
+			.hero-inner {
+				width: min(1180px, 100%);
 				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
+				padding: 3rem 1.5rem;
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+				gap: 1.5rem;
+				align-items: center;
 			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
+
+			.hero-copy {
+				display: flex;
+				flex-direction: column;
+				gap: 0.75rem;
+				position: relative;
+				z-index: 1;
 			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
+
+			.hero-copy h1 {
+				font-size: clamp(2rem, 2vw + 1rem, 2.8rem);
 			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
+
+			.hero-meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem;
+				color: var(--text-muted);
 			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
+
+			.hero-figure {
+				position: relative;
+				border-radius: var(--radius-lg);
+				overflow: hidden;
+				border: 1px solid var(--border);
+				box-shadow: var(--shadow-soft);
+				min-height: 260px;
 			}
-			.last-updated-on {
-				font-style: italic;
+
+			.hero-figure img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				border-radius: 0;
+			}
+
+			.hero-figure::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(180deg, rgba(6, 8, 18, 0) 30%, rgba(6, 8, 18, 0.65) 100%);
+			}
+
+			.post-body {
+				width: min(920px, 100%);
+				margin: -3rem auto 0;
+				padding: 0 1.5rem 4rem;
+				position: relative;
+				z-index: 2;
+			}
+
+			.post-surface {
+				background: rgba(15, 22, 40, 0.92);
+				border: 1px solid var(--border);
+				border-radius: var(--radius-lg);
+				padding: 2rem;
+				box-shadow: var(--shadow-soft);
+			}
+
+			.post-surface hr {
+				margin: 1.5rem 0;
+			}
+
+			@media (max-width: 720px) {
+				.hero-inner {
+					padding: 2rem 1rem;
+				}
+
+				.post-body {
+					padding: 0 1rem 3rem;
+				}
+
+				.post-surface {
+					padding: 1.5rem;
+				}
 			}
 		</style>
 	</head>
@@ -58,28 +121,41 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 	<body>
 		<Header />
 		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
+			<section class="hero">
+				<div class="hero-inner">
+					<div class="hero-copy">
+						<div class="pill">Article</div>
+						<h1>{title}</h1>
+						<p class="muted">{description}</p>
+						<div class="hero-meta">
+							<span class="pill">
+								Published <FormattedDate date={pubDate} />
+							</span>
+							{tags.map((tag) => (
+								<a class="pill" href={withBase(`articles/${encodeURIComponent(tag)}`)}>{tag}</a>
+							))}
 							{
 								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
+									<span class="pill">
+										Updated <FormattedDate date={updatedDate} />
+									</span>
 								)
 							}
 						</div>
-						<h1>{title}</h1>
-						<hr />
 					</div>
-					<slot />
+					{heroImage && (
+						<div class="hero-figure">
+							<Image width={1020} height={640} src={heroImage} alt="" />
+						</div>
+					)}
 				</div>
-			</article>
+			</section>
+
+			<section class="post-body">
+				<article class="post-surface prose">
+					<slot />
+				</article>
+			</section>
 		</main>
 		<Footer />
 	</body>

@@ -1,0 +1,42 @@
+---
+description: Step-by-step guide to integrating a custom favicon into your Astro project.
+heroImage: ../../assets/blog-favicon-astro.png
+pubDate: Nov 24 2025
+title: Adding a Custom Favicon to Your Astro Project
+tags:
+  - Astro
+---
+
+# Add a Custom Favicon to Your Astro Project
+
+## 1. Generate your favicons
+
+-   Visit https://favicon.io
+-   Generate your favicon set (PNG + ICO + manifest)
+
+## 2. Add files to your Astro project
+
+Place all generated favicon files in your project's `public/` directory.
+
+## 3. Update your BaseHead.astro
+
+In `src/components/BaseHead.astro`, add:
+
+``` html
+<link rel="apple-touch-icon" sizes="180x180" href={new URL('apple-touch-icon.png', Astro.url)} />
+<link rel="icon" type="image/png" sizes="32x32" href={new URL('favicon-32x32.png', Astro.url)} />
+<link rel="icon" type="image/png" sizes="16x16" href={new URL('favicon-16x16.png', Astro.url)} />
+<link rel="icon" type="image/x-icon" href={new URL('favicon.ico', Astro.url)} />
+<link rel="manifest" href={new URL('site.webmanifest', Astro.url)} />
+<link rel="sitemap" href={new URL('sitemap-index.xml', Astro.url)} />
+```
+
+As part of Global Metadata.
+
+## 4. Start your Astro dev server
+
+``` bash
+npm run dev
+```
+
+Your site will now display the new favicon.

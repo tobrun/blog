@@ -10,6 +10,11 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+const [featured, ...rest] = posts;
+const secondary = rest.length ? rest : posts;
+const base = import.meta.env.BASE_URL;
+const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+const withBase = (path = '') => `${normalizedBase}/${path.replace(/^\/+/, '')}`;
 ---
 
 <!doctype html>
@@ -18,95 +23,228 @@ const posts = (await getCollection('blog')).sort(
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
 			main {
-				width: 960px;
+				display: flex;
+				flex-direction: column;
+				gap: 2.5rem;
 			}
-			ul {
+			.tags {
 				display: flex;
 				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
+				gap: 0.5rem;
+				align-items: center;
+			}
+			.tags .pill {
+				padding: 0.25rem 0.75rem;
+			}
+
+			.hero-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+				gap: 1.5rem;
+				align-items: stretch;
+			}
+
+			.hero-card {
+				padding: 2rem;
+				border-radius: var(--radius-lg);
+				border: 1px solid var(--border);
+				background: linear-gradient(155deg, rgba(16, 24, 40, 0.92), rgba(10, 12, 30, 0.92));
+				box-shadow: var(--shadow-soft);
+				display: flex;
+				flex-direction: column;
+				gap: 1.25rem;
+			}
+
+			.hero-meta {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+				color: var(--text-muted);
+			}
+
+			.hero-actions {
+				display: flex;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+			}
+
+			.hero-image {
+				position: relative;
+				border-radius: var(--radius-lg);
+				overflow: hidden;
+				border: 1px solid var(--border);
+				box-shadow: var(--shadow-soft);
+				min-height: 340px;
+			}
+
+			.hero-image::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(180deg, rgba(6, 7, 15, 0) 40%, rgba(6, 7, 15, 0.85) 100%);
+			}
+
+			.hero-image img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				border-radius: 0;
+			}
+
+			.section-top {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+			}
+
+			.section-top a {
+				color: var(--primary-soft);
+				border-bottom: 1px solid transparent;
+			}
+
+			.section-top a:hover {
+				border-color: var(--primary-soft);
+			}
+
+			.card .title {
+				color: #f8fafc;
 				margin: 0;
-				padding: 0;
 			}
-			ul li {
-				width: calc(50% - 1rem);
+
+			.card .cta {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				color: var(--primary-soft);
+				font-weight: 600;
 			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
+
+			.newsletter-card {
+				background: radial-gradient(120% 120% at 20% 20%, rgba(34, 211, 238, 0.08), transparent 40%),
+					radial-gradient(140% 140% at 80% -10%, rgba(139, 92, 246, 0.16), transparent 45%),
+					linear-gradient(145deg, #0b1024, #0a0a16);
 			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
+
+			.newsletter .headline {
+				font-size: clamp(1.5rem, 1.4vw + 1rem, 2.2rem);
+				margin-bottom: 0.35rem;
 			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
+
+			.newsletter small {
+				color: var(--text-muted);
 				display: block;
+				margin-top: 0.35rem;
 			}
-			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
+
+			.newsletter .controls {
+				display: flex;
+				gap: 0.75rem;
+				flex-wrap: wrap;
 			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
+
+			.newsletter button {
+				border: none;
 			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
+
 			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
+				.hero-card {
+					padding: 1.5rem;
 				}
 			}
 		</style>
 	</head>
 	<body>
 		<Header />
-		<main>
+		<main class="page-shell">
+			{featured && (
+				<section class="hero-grid">
+					<article class="hero-card">
+						<div class="pill">Featured article</div>
+						<h1>{featured.data.title}</h1>
+						<p class="muted">{featured.data.description}</p>
+						<div class="hero-meta">
+							<span class="pill">
+								<FormattedDate date={featured.data.pubDate} />
+							</span>
+							{featured.data.tags?.map((tag) => (
+								<a class="pill" href={withBase(`articles/${encodeURIComponent(tag)}`)}>{tag}</a>
+							))}
+						</div>
+						<div class="hero-actions">
+							<a class="btn" href={withBase(`${featured.id}/`)}>Read article</a>
+							<a class="btn btn-secondary" href={withBase('articles')}>Browse all posts</a>
+						</div>
+					</article>
+					{featured.data.heroImage && (
+						<div class="hero-image">
+							<Image width={1020} height={640} src={featured.data.heroImage} alt="" />
+						</div>
+					)}
+				</section>
+			)}
+
 			<section>
-				<ul>
+				<div class="section-top">
+					<div class="section-heading">
+						<span class="eyebrow">Latest</span>
+						<h2>Fresh from the studio</h2>
+						<p class="muted">Design, delivery, and build notes from recent work.</p>
+					</div>
+					<a href={withBase('articles')}>View archive →</a>
+				</div>
+
+				<div class="card-grid">
 					{
-						posts.map((post) => (
-							<li>
-								<a href={`blog/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
+						secondary.map((post) => (
+							<article class="card">
+								{post.data.heroImage && (
+									<Image width={720} height={360} src={post.data.heroImage} alt={post.data.title} />
+								)}
+								<div class="meta">
+									<span><FormattedDate date={post.data.pubDate} /></span>
+									{post.data.tags && (
+										<div class="tags">
+											{post.data.tags.map((tag) => (
+												<a class="pill" href={withBase(`articles/${encodeURIComponent(tag)}`)}>
+													{tag}
+												</a>
+											))}
+										</div>
 									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
+								</div>
+								<h3 class="title">
+									<a href={withBase(`${post.id}/`)}>{post.data.title}</a>
+								</h3>
+								<p class="summary">{post.data.description}</p>
+								<a class="cta" href={withBase(`${post.id}/`)}>Read article →</a>
+							</article>
 						))
 					}
-				</ul>
+				</div>
+			</section>
+
+			<section class="newsletter newsletter-card glass">
+				<div>
+					<div class="pill">Newsletter</div>
+					<h3 class="headline">Keep up with new drops</h3>
+					<p class="muted">
+						Short dispatches on product design, developer tooling, and field notes from releases.
+					</p>
+					<small>No spam — unsubscribe anytime.</small>
+				</div>
+				<div class="controls embed">
+					<div class="sender-form-field" data-sender-form-id="e73wkO"></div>
+					<a class="btn btn-secondary outline" href="https://stats.sender.net/forms/e73wkO/view" target="_blank" rel="noreferrer">
+						Subscribe
+					</a>
+					<noscript>
+						<a class="btn" href="https://stats.sender.net/forms/e73wkO/view" target="_blank" rel="noreferrer">
+							Open signup form
+						</a>
+					</noscript>
+				</div>
 			</section>
 		</main>
 		<Footer />

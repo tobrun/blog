@@ -20,8 +20,12 @@ const { title, description, image = FallbackImage } = Astro.props;
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="apple-touch-icon" sizes="180x180" href={new URL('apple-touch-icon.png', Astro.url)} />
+<link rel="icon" type="image/png" sizes="32x32" href={new URL('favicon-32x32.png', Astro.url)} />
+<link rel="icon" type="image/png" sizes="16x16" href={new URL('favicon-16x16.png', Astro.url)} />
+<link rel="icon" type="image/x-icon" href={new URL('favicon.ico', Astro.url)} />
+<link rel="manifest" href={new URL('site.webmanifest', Astro.url)} />
+<link rel="sitemap" href={new URL('sitemap-index.xml', Astro.url)} />
 <link
 	rel="alternate"
 	type="application/rss+xml"
@@ -55,3 +59,21 @@ const { title, description, image = FallbackImage } = Astro.props;
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image.src, Astro.url)} />
+
+<!-- Sender embed (newsletter form) -->
+<script>
+	{`
+		(function (s, e, n, d, er) {
+			s['Sender'] = er;
+			s[er] = s[er] || function () {
+				(s[er].q = s[er].q || []).push(arguments);
+			}, s[er].l = 1 * new Date();
+			var a = e.createElement(n),
+				m = e.getElementsByTagName(n)[0];
+			a.async = 1;
+			a.src = d;
+			m.parentNode.insertBefore(a, m);
+		})(window, document, 'script', 'https://cdn.sender.net/accounts_resources/universal.js', 'sender');
+		sender('48192540369592');
+	`}
+</script>

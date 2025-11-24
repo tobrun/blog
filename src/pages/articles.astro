@@ -1,0 +1,120 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const base = import.meta.env.BASE_URL;
+const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+const withBase = (path = '') => `${normalizedBase}/${path.replace(/^\/+/, '')}`;
+const tagFilter = null;
+const filtered = posts;
+const allTags = Array.from(new Set(posts.flatMap((p) => p.data.tags ?? []))).sort();
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			.page-header {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+				margin-bottom: 1.5rem;
+			}
+
+			.page-header h1 {
+				font-size: clamp(2rem, 2vw + 1rem, 2.6rem);
+			}
+
+			.page-header .meta {
+				display: flex;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+				color: var(--text-muted);
+			}
+
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 0.4rem;
+			}
+
+			.tag-filter {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+			}
+
+			.tag-filter .pill {
+				cursor: pointer;
+			}
+
+			.filter-note {
+				color: var(--text-muted);
+				margin-top: 0.25rem;
+			}
+
+			.card-grid {
+				margin-top: 1.5rem;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main class="page-shell" id="articles-page">
+			<section class="page-header">
+				<span class="eyebrow">Articles</span>
+				<h1>All posts</h1>
+				<p class="muted">
+					A running stream of posts on Astro, product design, and the workflows used to ship this blog.
+				</p>
+				{allTags.length > 0 && (
+					<div class="tag-filter">
+						{allTags.map((tag) => (
+							<a class="pill" href={withBase(`articles/${encodeURIComponent(tag)}`)}>
+								{tag}
+							</a>
+						))}
+					</div>
+				)}
+			</section>
+
+			<section class="card-grid">
+				{
+					posts.map((post) => (
+						<article class="card" data-tags={(post.data.tags ?? []).join(',')}>
+							{post.data.heroImage && <Image width={720} height={360} src={post.data.heroImage} alt={post.data.title} />}
+							<div class="meta">
+								<span><FormattedDate date={post.data.pubDate} /></span>
+								{post.data.tags && (
+									<div class="tags">
+										{post.data.tags.map((tagName) => (
+											<a class="pill" href={withBase(`articles/${encodeURIComponent(tagName)}`)}>
+												{tagName}
+											</a>
+										))}
+									</div>
+								)}
+							</div>
+							<h3>
+								<a href={withBase(`${post.id}/`)}>{post.data.title}</a>
+							</h3>
+							<p class="summary">{post.data.description}</p>
+							<a class="cta" href={withBase(`${post.id}/`)}>Read article →</a>
+						</article>
+					))
+				}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
