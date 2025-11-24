@@ -7,5 +7,9 @@ import { defineConfig } from "astro/config";
 // https://astro.build/config
 export default defineConfig({
   site: "https://tobrun.github.io/blog",
+  output: "static",
   integrations: [mdx(), sitemap()],
+  build: {
+    inlineStylesheets: "auto",
+  },
 });
