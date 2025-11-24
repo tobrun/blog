@@ -1,0 +1,139 @@
+---
+description: Step-by-step guide to publishing an Astro site on GitHub
+  Pages using GitHub Actions.
+heroImage: ../../assets/setup-blog-pages.jpg
+pubDate: Nov 24 2025
+title: Deploying your Astro Blog to GitHub Pages
+---
+
+Astro works great with GitHub Pages.\
+In this tutorial, you'll go from a fresh Astro project on your machine
+to a fully deployed blog hosted on `yourusername.github.io`.
+
+We'll use:
+
+-   **Astro** for the site
+-   **Static output** (default)
+-   **GitHub Actions** for the build & deploy
+-   **GitHub Pages** for hosting
+
+------------------------------------------------------------------------
+
+## 1. Create a new Astro project
+
+If you don't have an Astro project yet, create one:
+
+``` bash
+npm create astro@latest blog
+cd blog
+npm install && npm run dev
+```
+
+Open `http://localhost:4321` to make sure your blog works locally.
+
+------------------------------------------------------------------------
+
+## 2. Initialize a Git repository
+
+``` bash
+git init
+git commit -am "Initial Astro blog"
+git branch -M main
+git remote add origin git@github.com:yourusername/blog.git
+git push -u origin main
+```
+
+------------------------------------------------------------------------
+
+## 3. Configure site and base in astro.config.mjs
+
+``` js
+export default defineConfig({
+  site: 'https://yourusername.github.io/blog'
+});
+```
+
+------------------------------------------------------------------------
+
+## 4. Add GitHub Actions workflow
+
+Create `.github/workflows/deploy.yml` and push it to `main`:
+
+``` yaml
+name: Deploy Astro site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+------------------------------------------------------------------------
+
+## 5. Enable GitHub Pages
+
+Settings → Pages\
+Set **Source: GitHub Actions**
+
+Your site will deploy to:
+
+    https://yourusername.github.io/blog/
+
+------------------------------------------------------------------------
+
+## 6. Updating your blog
+
+Commit new posts, push to `main`.\
+GitHub Actions rebuilds and deploys automatically.
+
+------------------------------------------------------------------------
+
+## Further reading
+
+-   https://docs.astro.build/en/guides/deploy/github/
+-   https://docs.astro.build/en/guides/markdown-content/
+-   https://docs.github.com/pages
