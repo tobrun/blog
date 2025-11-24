@@ -1,19 +1,19 @@
 ---
-description: Step-by-step guide to publishing an Astro site on GitHub
-  Pages using GitHub Actions.
+description: Step-by-step guide to publishing a blog on GitHub
+  Pages.
 heroImage: ../../assets/setup-blog-pages.jpg
 pubDate: Nov 24 2025
-title: Deploying your Astro Blog to GitHub Pages
+title: Deploying your Blog to GitHub Pages
 ---
 
-Astro works great with GitHub Pages.\
+There are multiple ways to add a blog to the internet. One convenient way is to leverage Github Pages, so you don't need a custom domain or hosting solution.
+When it comes to frameworks, there are also plentifull of choices. I opted for this blog to use Astro because
+it's modern and work great with GitHub Pages.\
 In this tutorial, you'll go from a fresh Astro project on your machine
 to a fully deployed blog hosted on `yourusername.github.io`.
 
 We'll use:
-
 -   **Astro** for the site
--   **Static output** (default)
 -   **GitHub Actions** for the build & deploy
 -   **GitHub Pages** for hosting
 
@@ -49,7 +49,8 @@ git push -u origin main
 
 ``` js
 export default defineConfig({
-  site: 'https://yourusername.github.io/blog'
+  site: 'https://yourusername.github.io',
+  base: "/blog"
 });
 ```
 

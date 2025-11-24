@@ -6,7 +6,7 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://tobrun.github.io",
+  site: "https://tobrun.github.io/",
   base: "/blog",
   output: "static",
   integrations: [mdx(), sitemap()],
