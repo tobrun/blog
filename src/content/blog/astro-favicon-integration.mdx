@@ -23,12 +23,12 @@ Place all generated favicon files in your project's `public/` directory.
 In `src/components/BaseHead.astro`, add:
 
 ``` html
-<link rel="apple-touch-icon" sizes="180x180" href={new URL('apple-touch-icon.png', Astro.url)} />
-<link rel="icon" type="image/png" sizes="32x32" href={new URL('favicon-32x32.png', Astro.url)} />
-<link rel="icon" type="image/png" sizes="16x16" href={new URL('favicon-16x16.png', Astro.url)} />
-<link rel="icon" type="image/x-icon" href={new URL('favicon.ico', Astro.url)} />
-<link rel="manifest" href={new URL('site.webmanifest', Astro.url)} />
-<link rel="sitemap" href={new URL('sitemap-index.xml', Astro.url)} />
+<link rel="apple-touch-icon" sizes="180x180" href={asset('apple-touch-icon.png')} />
+<link rel="icon" type="image/png" sizes="32x32" href={asset('favicon-32x32.png')} />
+<link rel="icon" type="image/png" sizes="16x16" href={asset('favicon-16x16.png')} />
+<link rel="icon" type="image/x-icon" href={asset('favicon.ico')} />
+<link rel="manifest" href={asset('site.webmanifest')} />
+<link rel="sitemap" href={asset('sitemap-index.xml')} />
 ```
 
 As part of Global Metadata.
