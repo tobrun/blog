@@ -1,0 +1,269 @@
+---
+title: Programming Paradigms in JavaScript: Procedural vs Functional vs OOP
+description: A side-by-side comparison of procedural, functional, and object-oriented programming styles in JavaScript using the same real-world problem.
+pubDate: Nov 25 2025
+heroImage: ../../assets/programming-styles.png
+tags:
+  - JavaScript
+  - Programming
+---
+
+# Programming Paradigms in JavaScript: Procedural vs Functional vs OOP  
+*Using the same problem solved three different ways*
+
+Modern JavaScript gives you the freedom to solve the same problem in completely different programming styles.  
+Understanding these paradigms is an essential skill for any engineer because each one shapes how you think about data, state, transformations, and structure.
+
+This post uses code from the following repository:  
+👉 **https://github.com/tobrun/js-programming-styles**
+
+The repo implements the **exact same problem** using:
+
+- Procedural programming  
+- Functional programming  
+- Object-oriented programming (OOP)
+
+By comparing them side-by-side, you’ll see how each paradigm influences structure, readability, and patterns—even with the same data, rules, and operations.
+
+---
+
+## 1. Problem Statement
+
+We work with an array of products, each containing:
+
+```js
+{
+  name: string,
+  price: number,
+  category: string,
+  stock: number,
+  rating: number
+}
+```
+
+We implement three operations:
+
+1. **Get affordable product names**  
+2. **Get average rating for a category**  
+3. **Get inventory value by category**
+
+These are realistic everyday tasks in e-commerce, business logic, or data transformation code.
+
+All three paradigms solve the same tasks below.
+
+---
+
+## 2. Procedural Programming Example
+
+Procedural programming is the oldest and most direct style: step-by-step instructions, loops, mutable state, and variables that get updated.
+
+### Characteristics
+
+- Uses `for` loops  
+- Mutates variables directly  
+- Builds results by pushing into arrays/objects  
+- Very explicit about *how* the program flows
+
+### Procedural Implementation
+
+```js
+function getAffordableProductNames(products, maxPrice) {
+  const result = [];
+  for (let i = 0; i < products.length; i++) {
+    const p = products[i];
+    if (p.price <= maxPrice) {
+      result.push(p.name);
+    }
+  }
+  return result;
+}
+
+function getAverageRatingForCategory(products, category) {
+  let total = 0;
+  let count = 0;
+
+  for (let i = 0; i < products.length; i++) {
+    const p = products[i];
+    if (p.category === category) {
+      total += p.rating;
+      count++;
+    }
+  }
+
+  if (count === 0) return null;
+  return total / count;
+}
+
+function getInventoryValueByCategory(products) {
+  const result = {};
+
+  for (let i = 0; i < products.length; i++) {
+    const p = products[i];
+    const value = p.price * p.stock;
+
+    if (!result[p.category]) {
+      result[p.category] = 0;
+    }
+    result[p.category] += value;
+  }
+
+  return result;
+}
+```
+
+---
+
+## 3. Functional Programming Example
+
+Functional programming (FP) focuses on:
+
+- Pure functions  
+- Immutable data  
+- Declarative transformations  
+- Built-in array methods (`filter`, `map`, `reduce`)
+
+### Why FP is big in frontend now?
+
+Frameworks like React, SwiftUI, and Jetpack Compose rely on the idea that UI = function(state).  
+Functional thinking makes UI predictable, testable, and declarative.
+
+### Functional Implementation
+
+```js
+function getAffordableProductNamesFn(products, maxPrice) {
+  return products
+    .filter((p) => p.price <= maxPrice)
+    .map((p) => p.name);
+}
+
+function getAverageRatingForCategoryFn(products, category) {
+  const ratings = products
+    .filter((p) => p.category === category)
+    .map((p) => p.rating);
+
+  if (ratings.length === 0) return null;
+
+  const total = ratings.reduce((sum, r) => sum + r, 0);
+  return total / ratings.length;
+}
+
+function getInventoryValueByCategoryFn(products) {
+  return products.reduce((acc, p) => {
+    const value = p.price * p.stock;
+    return {
+      ...acc,
+      [p.category]: (acc[p.category] ?? 0) + value,
+    };
+  }, {});
+}
+```
+
+---
+
+## 4. Object-Oriented Programming Example
+
+OOP groups data + behavior into classes.
+
+Here it models:
+
+- A `Product` class (data container)
+- An `Inventory` class (operations on those products)
+
+### Characteristics
+
+- Data and logic bundled in objects  
+- State stored inside class instances  
+- Methods operate on internal data  
+- Mirrors how many enterprise systems are structured  
+
+### OOP Implementation
+
+```js
+class Product {
+  constructor(name, price, category, stock, rating) {
+    this.name = name;
+    this.price = price;
+    this.category = category;
+    this.stock = stock;
+    this.rating = rating;
+  }
+}
+
+class Inventory {
+  constructor(products = []) {
+    this.products = products;
+  }
+
+  getAffordableProductNames(maxPrice) {
+    const result = [];
+    for (const p of this.products) {
+      if (p.price <= maxPrice) {
+        result.push(p.name);
+      }
+    }
+    return result;
+  }
+
+  getAverageRatingForCategory(category) {
+    let total = 0;
+    let count = 0;
+    for (const p of this.products) {
+      if (p.category === category) {
+        total += p.rating;
+        count++;
+      }
+    }
+    return count === 0 ? null : total / count;
+  }
+
+  getInventoryValueByCategory() {
+    const result = {};
+    for (const p of this.products) {
+      const value = p.price * p.stock;
+      if (!result[p.category]) {
+        result[p.category] = 0;
+      }
+      result[p.category] += value;
+    }
+    return result;
+  }
+}
+```
+
+---
+
+## 5. Paradigm Differences at a Glance
+
+| Paradigm | How it thinks | Key traits | Best for |
+|----------|---------------|------------|----------|
+| Procedural | "Do this, then this…" | loops, mutation, explicit flow | scripts, simple transforms, performance |
+| Functional | "Transform this into that" | immutability, pure functions, map/filter/reduce | UI, pipelines, predictable logic |
+| OOP | "Model the world as objects" | classes, encapsulation, methods | large systems, domain modeling |
+
+---
+
+## 6. Why Functional Programming Dominates Modern Frontend
+
+Modern UI frameworks (React, Vue Composition API, Svelte, SolidJS, SwiftUI, Compose) prefer functional patterns because:
+
+- Declarative > imperative UI  
+- State flows are predictable  
+- Views are pure functions of state  
+- Easier testing  
+- Less lifecycle management  
+
+Functional thinking maps perfectly onto UI rendering.
+
+---
+
+## 7. Final Thoughts: No Paradigm Is “Best”
+
+Each paradigm has strengths. None are universally superior.
+
+- FP shines in UI, transformations, and predictable flows  
+- Procedural shines in explicit logic and hot paths  
+- OOP shines in structure, modeling, and encapsulation  
+
+The real skill is knowing **when to use which tool**.
+
+> A great engineer is fluent in all three—and switches intentionally.

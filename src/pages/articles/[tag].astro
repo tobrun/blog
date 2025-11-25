@@ -88,10 +88,6 @@ const allTags = Array.from(new Set(posts.flatMap((p) => p.data.tags ?? []))).sor
         <p class="muted">
           A running stream of posts on Astro, product design, and the workflows used to ship this blog.
         </p>
-        <div class="meta">
-          <span class="pill">Updated weekly</span>
-          <span class="pill">{filtered.length} post{filtered.length === 1 ? '' : 's'}</span>
-        </div>
         {allTags.length > 0 && (
           <div class="tag-filter">
             {allTags.map((tagName) => (
