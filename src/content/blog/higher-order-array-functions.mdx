@@ -1,0 +1,221 @@
+---
+title: A Complete Guide to Higher-Order Array Functions in JavaScript
+description: Learn every important higher-order array function in JavaScript with clear explanations and practical examples.
+pubDate: Nov 26 2025
+heroImage: ../../assets/js-array-hof.jpg
+tags:
+  - JavaScript
+  - Arrays
+  - Functional Programming
+  - Web Development
+---
+
+JavaScript arrays come with a powerful collection of **higher-order functions**—functions that take another function as an argument.  
+These tools let you write cleaner, more expressive, more functional code.
+
+In this guide, we’ll explore *all commonly used higher-order functions on arrays*, grouped by purpose, with examples for each.
+
+---
+
+# 📦 What Are Higher-Order Functions?
+
+A higher-order function is a function that:
+
+- takes a function as an argument, **or**
+- returns a function.
+
+Array methods like `map`, `filter`, `reduce`, `sort`, `some`, etc., all fall in this category.
+
+We'll use an example dataset:
+
+```js
+const products = [
+  { name: "Laptop", price: 1200, inStock: true },
+  { name: "Phone", price: 800, inStock: false },
+  { name: "Tablet", price: 450, inStock: true },
+  { name: "Monitor", price: 300, inStock: false },
+];
+```
+
+---
+
+# 🎨 TRANSFORMING ARRAYS
+
+## `map()`
+Transforms each element and returns a **new array**.
+
+```js
+const prices = products.map(p => p.price);
+// [1200, 800, 450, 300]
+```
+
+## `flatMap()`
+Like `map`, but flattens the result by **one level**.
+
+```js
+const inventory = [
+  { store: "A", items: ["laptop", "mouse"] },
+  { store: "B", items: ["tablet"] }
+];
+
+const allItems = inventory.flatMap(s => s.items);
+// ["laptop", "mouse", "tablet"]
+```
+
+## `flat()`
+
+Flattens nested arrays.
+
+```js
+[1, [2, 3], [4]].flat();
+// [1, 2, 3, 4]
+```
+
+---
+
+# 🔍 FILTERING & FINDING
+
+## `filter()`
+
+```js
+const inStock = products.filter(p => p.inStock);
+```
+
+## `find()`
+
+```js
+const firstCheap = products.find(p => p.price < 500);
+```
+
+## `findLast()`
+
+```js
+const lastCheap = products.findLast(p => p.price < 500);
+```
+
+## `findIndex()`
+
+```js
+const idx = products.findIndex(p => !p.inStock);
+```
+
+## `findLastIndex()`
+
+```js
+const lastIdx = products.findLastIndex(p => !p.inStock);
+```
+
+---
+
+# 🔢 REDUCING VALUES
+
+## `reduce()`
+
+```js
+const total = products.reduce((sum, p) => sum + p.price, 0);
+```
+
+## `reduceRight()`
+
+```js
+const names = products.reduceRight((acc, p) => [...acc, p.name], []);
+```
+
+---
+
+# 🧪 BOOLEAN CHECKS
+
+## `some()`
+
+```js
+const hasCheap = products.some(p => p.price < 400);
+```
+
+## `every()`
+
+```js
+const allInStock = products.every(p => p.inStock);
+```
+
+---
+
+# 🔁 ITERATION
+
+## `forEach()`
+
+```js
+products.forEach(p => console.log(p.name));
+```
+
+---
+
+# 🔀 ORDERING
+
+## `sort()`
+
+```js
+const sorted = [...products].sort((a, b) => a.price - b.price);
+```
+
+## `toSorted()`
+
+```js
+const sortedCopy = products.toSorted((a, b) => a.price - b.price);
+```
+
+## `reverse()` and `toReversed()`
+
+```js
+products.toReversed();
+```
+
+---
+
+# ✂️ INDEX & COPY HELPERS (ES2023)
+
+## `with()`
+
+```js
+const updated = products.with(0, { name: "New Laptop", price: 900 });
+```
+
+## `at()`
+
+```js
+products.at(-1);
+```
+
+---
+
+# 🔧 UTILITY
+
+## `includes()`
+
+```js
+[1, 2, 3].includes(2);
+```
+
+## `join()`
+
+```js
+["a", "b", "c"].join(", ");
+```
+
+---
+
+# 🎉 Summary
+
+| Purpose | Methods |
+|--------|---------|
+| Transform | `map`, `flatMap`, `flat` |
+| Filter/Search | `filter`, `find`, `findLast`, `findIndex`, `findLastIndex` |
+| Reduce | `reduce`, `reduceRight` |
+| Boolean checks | `some`, `every` |
+| Iterate | `forEach` |
+| Sort/Reverse | `sort`, `toSorted`, `reverse`, `toReversed` |
+| Index helpers | `with`, `at` |
+| Utility | `includes`, `join` |
+
+---
+
+Thanks for reading!
