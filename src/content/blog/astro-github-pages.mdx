@@ -2,12 +2,10 @@
 description: Step-by-step guide to publishing a blog on GitHub
   Pages.
 heroImage: ../../assets/setup-blog-pages.jpg
-pubDate: Nov 24 2025
+pubDate: 2025-11-24
 title: Deploying your Blog to GitHub Pages
 tags:
   - Astro
-  - Deployment
-  - GitHub Pages
 ---
 
 There are many ways to publish a blog online. One of the simplest options is GitHub Pages, which lets you host your site without needing a custom domain or separate hosting provider.
@@ -17,17 +15,18 @@ When it comes to frameworks, the choices are equally plentiful. For this blog, I
 In this tutorial, you’ll start with a fresh Astro project on your machine and end with a fully deployed blog hosted at yourusername.github.io.
 
 We'll use:
--   **Astro** for the site
--   **GitHub Actions** for the build & deploy
--   **GitHub Pages** for hosting
 
-------------------------------------------------------------------------
+- **Astro** for the site
+- **GitHub Actions** for the build & deploy
+- **GitHub Pages** for hosting
+
+---
 
 ## 1. Create a new Astro project
 
 If you don't have an Astro project yet, create one:
 
-``` bash
+```bash
 npm create astro@latest blog
 cd blog
 npm install && npm run dev
@@ -35,11 +34,11 @@ npm install && npm run dev
 
 Open `http://localhost:4321` to make sure your blog works locally.
 
-------------------------------------------------------------------------
+---
 
 ## 2. Initialize a Git repository
 
-``` bash
+```bash
 git init
 git commit -am "Initial Astro blog"
 git branch -M main
@@ -47,23 +46,23 @@ git remote add origin git@github.com:yourusername/blog.git
 git push -u origin main
 ```
 
-------------------------------------------------------------------------
+---
 
 ## 3. Configure site and base in astro.config.mjs
 
-``` js
+```js
 export default defineConfig({
-  site: 'https://yourusername.github.io/blog/',
+  site: "https://yourusername.github.io/blog/",
 });
 ```
 
-------------------------------------------------------------------------
+---
 
 ## 4. Add GitHub Actions workflow
 
 Create `.github/workflows/deploy.yml` and push it to `main`:
 
-``` yaml
+```yaml
 name: Deploy Astro site to GitHub Pages
 
 on:
@@ -90,8 +89,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -116,7 +115,7 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-------------------------------------------------------------------------
+---
 
 ## 5. Enable GitHub Pages
 
@@ -127,17 +126,17 @@ Your site will deploy to:
 
     https://yourusername.github.io/blog/
 
-------------------------------------------------------------------------
+---
 
 ## 6. Updating your blog
 
 Commit new posts, push to `main`.\
 GitHub Actions rebuilds and deploys automatically.
 
-------------------------------------------------------------------------
+---
 
 ## Further reading
 
--   https://docs.astro.build/en/guides/deploy/github/
--   https://docs.astro.build/en/guides/markdown-content/
--   https://docs.github.com/pages
+- https://docs.astro.build/en/guides/deploy/github/
+- https://docs.astro.build/en/guides/markdown-content/
+- https://docs.github.com/pages

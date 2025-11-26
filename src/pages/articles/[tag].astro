@@ -86,7 +86,7 @@ const allTags = Array.from(new Set(posts.flatMap((p) => p.data.tags ?? []))).sor
         <span class="eyebrow">Articles</span>
         <h1>{tagFilter ? `Posts tagged “${tagFilter}”` : 'All posts'}</h1>
         <p class="muted">
-          A running stream of posts on Astro, product design, and the workflows used to ship this blog.
+          A running stream of posts on software engineering and technical practices.
         </p>
         {allTags.length > 0 && (
           <div class="tag-filter">

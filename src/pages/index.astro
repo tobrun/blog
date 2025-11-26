@@ -162,7 +162,7 @@ const withBase = (path = '') => `${normalizedBase}/${path.replace(/^\/+/, '')}`;
 				<section class="hero-grid">
 					<article class="hero-card">
 						<div class="pill">Featured article</div>
-						<h1>{featured.data.title}</h1>
+						<h1><a href={withBase(`${featured.id}/`)}>{featured.data.title}</a></h1>
 						<p class="muted">{featured.data.description}</p>
 						<div class="hero-meta">
 							<span class="pill">
@@ -190,7 +190,7 @@ const withBase = (path = '') => `${normalizedBase}/${path.replace(/^\/+/, '')}`;
 					<div class="section-heading">
 						<span class="eyebrow">Latest</span>
 						<h2>Fresh from the studio</h2>
-						<p class="muted">Design, delivery, and build notes from recent work.</p>
+						<p class="muted">Technical insights and engineering practices from recent work.</p>
 					</div>
 					<a href={withBase('articles')}>View archive →</a>
 				</div>
@@ -230,7 +230,7 @@ const withBase = (path = '') => `${normalizedBase}/${path.replace(/^\/+/, '')}`;
 					<div class="pill">Newsletter</div>
 					<h3 class="headline">Keep up with new drops</h3>
 					<p class="muted">
-						Short dispatches on product design, developer tooling, and field notes from releases.
+						Short dispatches on software engineering, development practices, and technical insights.
 					</p>
 					<small>No spam — unsubscribe anytime.</small>
 				</div>

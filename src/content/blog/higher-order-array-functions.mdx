@@ -5,15 +5,13 @@ pubDate: Nov 26 2025
 heroImage: ../../assets/hof-js.png
 tags:
   - JavaScript
-  - Arrays
   - Functional Programming
-  - Web Development
 ---
 
 JavaScript arrays come with a powerful collection of **higher-order functions**—functions that take another function as an argument.  
 These tools let you write cleaner, more expressive, more functional code.
 
-In this guide, we’ll explore *all commonly used higher-order functions on arrays*, grouped by purpose, with examples for each.
+In this guide, we’ll explore _all commonly used higher-order functions on arrays_, grouped by purpose, with examples for each.
 
 ---
 
@@ -42,29 +40,31 @@ const products = [
 # 🎨 TRANSFORMING ARRAYS
 
 ## `map()`
-Transforms each element and returns a **new array**. 
+
+Transforms each element and returns a **new array**.
 In below example code we are mapping our products array to produce an array of prices.
 An alternative way to interpret this is we map our array from one datatype to another.
 The amount of items in the orginating array will match the amount of items in the mapped array.
 
 ```js
-const prices = products.map(p => p.price);
+const prices = products.map((p) => p.price);
 // [1200, 800, 450, 300]
 ```
 
 ## `flatMap()`
-Like `map`, but flattens the result by **one level**. 
+
+Like `map`, but flattens the result by **one level**.
 You will incorporate this function when your intermediate function return an array.
-But the output should combine all of those arrays into a single array. 
-Note that this will only be done for 1 level deep of an array, not nested. 
+But the output should combine all of those arrays into a single array.
+Note that this will only be done for 1 level deep of an array, not nested.
 
 ```js
 const inventory = [
   { store: "A", items: ["laptop", "mouse"] },
-  { store: "B", items: ["tablet"] }
+  { store: "B", items: ["tablet"] },
 ];
 
-const allItems = inventory.flatMap(s => s.items);
+const allItems = inventory.flatMap((s) => s.items);
 // ["laptop", "mouse", "tablet"]
 ```
 
@@ -83,31 +83,31 @@ Flattens nested arrays. Given an input of nested arrays, produces an flat array 
 
 ## `filter()`
 
-Filter functions require to return a boolean value. If the expression evaluates to true, 
+Filter functions require to return a boolean value. If the expression evaluates to true,
 the iterated item will be included. If not, the iterated item will be filtered out.
 Note: filter operation doesn't mutate the input array, it produces a copy.
 
 ```js
-const inStock = products.filter(p => p.inStock);
+const inStock = products.filter((p) => p.inStock);
 ```
 
 ## `find()`
 
-Find returns the first item that matches from left-to-right, 
+Find returns the first item that matches from left-to-right,
 in other words if the expression evaluates to true, that item is returned.
-Returns undefined if nothing matches. 
+Returns undefined if nothing matches.
 
 ```js
-const firstCheap = products.find(p => p.price < 500);
+const firstCheap = products.find((p) => p.price < 500);
 ```
 
 ## `findLast()`
 
 Searches from right-to-left, returns the element itself like find().
-Returns undefined if nothing matches. 
+Returns undefined if nothing matches.
 
 ```js
-const lastCheap = products.findLast(p => p.price < 500);
+const lastCheap = products.findLast((p) => p.price < 500);
 ```
 
 ## `findIndex()`
@@ -115,15 +115,15 @@ const lastCheap = products.findLast(p => p.price < 500);
 Same logic as find() but the index is returned, not the element.
 
 ```js
-const idx = products.findIndex(p => !p.inStock);
+const idx = products.findIndex((p) => !p.inStock);
 ```
 
 ## `findLastIndex()`
 
-Same logic as findLast() but the index is returned, not the element.  
+Same logic as findLast() but the index is returned, not the element.
 
 ```js
-const lastIdx = products.findLastIndex(p => !p.inStock);
+const lastIdx = products.findLastIndex((p) => !p.inStock);
 ```
 
 ---
@@ -132,7 +132,7 @@ const lastIdx = products.findLastIndex(p => !p.inStock);
 
 ## `reduce()`
 
-Reduce produces a single value, often a calculation, from an array. 
+Reduce produces a single value, often a calculation, from an array.
 
 ```js
 const total = products.reduce((sum, p) => sum + p.price, 0);
@@ -155,7 +155,7 @@ const names = products.reduceRight((acc, p) => [...acc, p.name], []);
 Returns true if at least one element matches the expression, false otherwise.
 
 ```js
-const hasCheap = products.some(p => p.price < 400);
+const hasCheap = products.some((p) => p.price < 400);
 ```
 
 ## `every()`
@@ -163,7 +163,7 @@ const hasCheap = products.some(p => p.price < 400);
 Returns true if all elements match the expression, false otherwise.
 
 ```js
-const allInStock = products.every(p => p.inStock);
+const allInStock = products.every((p) => p.inStock);
 ```
 
 ---
@@ -176,7 +176,7 @@ Iterates over each element of an array and runs the callback function.
 Doesn't return a result.
 
 ```js
-products.forEach(p => console.log(p.name));
+products.forEach((p) => console.log(p.name));
 ```
 
 ---
@@ -216,14 +216,14 @@ products.toReversed();
 
 # 🎉 Summary
 
-| Purpose | Methods |
-|--------|---------|
-| Transform | `map`, `flatMap`, `flat` |
-| Filter/Search | `filter`, `find`, `findLast`, `findIndex`, `findLastIndex` |
-| Reduce | `reduce`, `reduceRight` |
-| Boolean checks | `some`, `every` |
-| Iterate | `forEach` |
-| Sort/Reverse | `sort`, `toSorted`, `reverse`, `toReversed` |
+| Purpose        | Methods                                                    |
+| -------------- | ---------------------------------------------------------- |
+| Transform      | `map`, `flatMap`, `flat`                                   |
+| Filter/Search  | `filter`, `find`, `findLast`, `findIndex`, `findLastIndex` |
+| Reduce         | `reduce`, `reduceRight`                                    |
+| Boolean checks | `some`, `every`                                            |
+| Iterate        | `forEach`                                                  |
+| Sort/Reverse   | `sort`, `toSorted`, `reverse`, `toReversed`                |
 
 ---
 
