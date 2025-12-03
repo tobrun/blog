@@ -1,0 +1,194 @@
+---
+title: Deploying vLLM on your Linux Server
+description: A complete step-by-step guide for installing vLLM, configuring systemd, setting up virtual environments, and troubleshooting GPU-backed inference servers.
+pubDate: 2025-12-03
+heroImage: ../../assets/vllm-linux.png
+tags:
+  - vLLM
+  - Linux
+  - LLM
+---
+
+# 🚀 Deploying vLLM on Your Linux Server
+
+Running **vLLM** as a persistent, reliable background service is one of the best ways to expose a fast local LLM API on your Linux machine.  
+This guide walks through:
+
+- Installing dependencies
+- Creating a virtual environment
+- Setting up a **systemd** service
+- Running vLLM from a fixed directory (`/home/nurbot/ws/models`)
+- Checking logs and debugging
+- Enabling auto-start on boot
+
+---
+
+# 🧰 1. Install System Dependencies
+
+```bash
+sudo apt-get update
+sudo apt-get install -y python3-pip python3-venv docker.io
+```
+
+Docker is optional but useful if you want containerized workflows.
+
+---
+
+# 🎮 2. Verify NVIDIA GPU Support (Optional but Recommended)
+
+Check whether the machine has working NVIDIA drivers:
+
+```bash
+nvidia-smi
+```
+
+If the command is missing, install drivers before running GPU-backed vLLM.
+
+---
+
+# 🐍 3. Create the vLLM Virtual Environment
+
+We place it in `/opt/vllm-env`:
+
+```bash
+sudo python3 -m venv /opt/vllm-env
+sudo chown -R $USER:$USER /opt/vllm-env
+source /opt/vllm-env/bin/activate
+```
+
+Install vLLM + OpenAI API compatibility:
+
+```bash
+pip install vllm openai
+```
+
+---
+
+# 📁 4. Configure where vLLM Runs From
+
+We want vLLM to run from:
+
+```
+/home/nurbot/ws/models
+```
+
+This directory will contain the `start_vllm.sh` script.
+
+Ensure the start script is executable:
+
+```bash
+chmod +x /home/nurbot/ws/models/infrastructure/scripts/start_vllm.sh
+```
+
+---
+
+# 🧩 5. Create the Systemd Service
+
+Create the service file:
+
+```bash
+sudo nano /etc/systemd/system/vllm.service
+```
+
+Paste:
+
+```ini
+[Unit]
+Description=vLLM Inference Server
+After=network.target
+
+[Service]
+Type=simple
+User=nurbot
+WorkingDirectory=/home/nurbot/ws/models
+ExecStart=/home/nurbot/ws/models/infrastructure/scripts/start_vllm.sh
+Restart=always
+Environment=MODEL_NAME=facebook/opt-125m
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then reload systemd:
+
+```bash
+sudo systemctl daemon-reload
+```
+
+---
+
+# ▶️ 6. Starting, Stopping, and Enabling the Service
+
+Start vLLM:
+
+```bash
+sudo systemctl start vllm
+```
+
+Check its status:
+
+```bash
+systemctl status vllm
+```
+
+Enable auto-start on boot:
+
+```bash
+sudo systemctl enable vllm
+```
+
+---
+
+# 📡 7. Checking Logs
+
+To see the real-time logs from vLLM:
+
+```bash
+journalctl -u vllm -f
+```
+
+To see historical logs:
+
+```bash
+journalctl -u vllm
+```
+
+To see recent errors:
+
+```bash
+journalctl -u vllm -xe
+```
+
+---
+
+# 🛠 8. Troubleshooting
+
+### **Service says “failed”**
+
+Run:
+
+```bash
+systemctl status vllm
+journalctl -u vllm -xe
+```
+
+Common issues:
+
+- Wrong `ExecStart` path
+- Missing execute permission
+- Python crash inside vLLM
+- GPU not available / out of memory
+
+---
+
+# 🎯 Conclusion
+
+You now have a fully functional **vLLM OpenAI-compatible server** running as a background service on Linux.  
+It's stable, auto-starts on reboot, logs to systemd, and uses a clean virtual environment with GPU acceleration.
+
+If you'd like, we can extend this tutorial with:
+
+- Logging to `/var/log/vllm`
+- Running multiple models
+- Adding an Nginx reverse proxy
+- Token-based authentication
