@@ -1,0 +1,173 @@
+---
+description: Exploring Reachy Mini Internals
+heroImage: ../../assets/reachy.png
+pubDate: 2025-12-26
+title: Debugging Reachy Mini
+tags:
+- Reachy Mini
+- Huggingface
+- Robotics
+- Linux
+---
+
+# Reachy Mini Connects to Wi-Fi, but the Web Server Doesn't Respond  
+
+## A practical debugging walk-through
+
+I've just received my Reachy Mini, was able to register Wi-Fi network as part of installation, but the web server never became responsive. The IP appeared on the network, but the UI for controlling and updating the robot didn’t respond. In situations like this, I usually try to understand what is actually running under the hood before assuming something is “broken”.
+
+Below is a step-by-step overview of how I inspected the system, found the underlying service, and eventually updated it so the web interface could run again. Hopefully this helps someone who ends up in a similar situation.
+
+---
+
+## Step 1 — Connecting via SSH
+
+First, I needed a way to control the robot. First, find the IP address on your network. Any network scanner will do; I used **Net Analyzer** on Android, but there are many alternatives.
+
+Then connect via SSH:
+
+```bash
+ssh pollen@{ip-address}
+# password: root
+```
+
+Example session:
+
+```bash
+❯ ssh pollen@192.168.0.151
+pollen@192.168.0.151's password:
+Linux reachy-mini ...
+Last login: Wed Dec 26 ...
+```
+
+With SSH access in place, we can start looking at what the system is actually doing.
+
+---
+
+## Step 2 — Inspecting the System Services
+
+Since Reachy Mini runs on a Debian-based platform, system services are managed with **systemd**. Listing the active services gives a good overview:
+
+```bash
+systemctl list-units --type=service
+```
+
+Among the many entries, this one is particularly relevant:
+
+```text
+reachy-mini-daemon.service — Reachy Mini AP Launcher Service
+```
+
+To see how that service is behaving:
+
+```bash
+systemctl status reachy-mini-daemon.service
+```
+
+A healthy service typically shows something along these lines:
+
+```text
+● reachy-mini-daemon.service - Reachy Mini AP Launcher Service
+     Loaded: loaded (/etc/systemd/system/reachy-mini-daemon.service; enabled; preset: enabled)
+     Active: active (running) since Thu 2025-12-25 17:58:42 GMT; 21h ago
+ Invocation: c8765a1de095451b979518de1a7f7164
+   Main PID: 921 (launcher.sh)
+      Tasks: 6 (limit: 3920)
+        CPU: 9.720s
+     CGroup: /system.slice/reachy-mini-daemon.service
+             ├─921 /bin/bash /venvs/src/reachy_mini/src/reachy_mini/daemon/app/services/wireless/launcher.sh
+             └─935 python -m reachy_mini.daemon.app.main --wireless-version --no-autostart
+
+Dec 25 17:58:53 reachy-mini sudo[1012]:   pollen : PWD=/venvs/src/reachy_mini/src/reachy_mini/daemon/app/services/wireless ; USER=root ; COMMAN>
+Dec 25 17:58:53 reachy-mini sudo[1012]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=1000)
+Dec 25 17:58:53 reachy-mini sudo[1012]: pam_unix(sudo:session): session closed for user root
+Dec 25 17:58:53 reachy-mini sudo[1019]:   pollen : PWD=/venvs/src/reachy_mini/src/reachy_mini/daemon/app/services/wireless ; USER=root ; COMMAN>
+Dec 25 17:58:53 reachy-mini sudo[1019]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=1000)
+Dec 25 17:58:54 reachy-mini sudo[1019]: pam_unix(sudo:session): session closed for user root
+Dec 25 17:58:54 reachy-mini launcher.sh[935]: INFO:     Started server process [935]
+Dec 25 17:58:54 reachy-mini launcher.sh[935]: INFO:     Waiting for application startup.
+Dec 25 17:58:54 reachy-mini launcher.sh[935]: INFO:     Application startup complete.
+Dec 25 17:58:54 reachy-mini launcher.sh[935]: INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+```
+
+This already tells us quite a lot: the robot relies on a dedicated daemon that exposes a FastAPI/Uvicorn service on port `8000`.
+
+In my case, the logs indicated the service wasn’t running correctly, so an update looked like the sensible next step.
+
+---
+
+## Step 3 — Finding the Right Python Environment
+
+Rather than guessing where the Python environment lives, we can use the path from the `Main PID` line above. It shows that the daemon is started via a `launcher.sh` script located at:
+
+```text
+/venvs/src/reachy_mini/src/reachy_mini/daemon/app/services/wireless/launcher.sh
+```
+
+Inspecting that file makes things explicit:
+
+```bash
+(mini_daemon) pollen@reachy-mini:~ $ cat /venvs/src/reachy_mini/src/reachy_mini/daemon/app/services/wireless/launcher.sh
+#!/bin/bash
+source /venvs/mini_daemon/bin/activate
+export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:/opt/gst-plugins-rs/lib/aarch64-linux-gnu/
+python -m reachy_mini.daemon.app.main --wireless-version --no-autostart
+```
+
+From this script, we can see that the daemon uses the virtual environment at:
+
+```text
+/venvs/mini_daemon/bin/activate
+```
+
+So we activate it directly:
+
+```bash
+source /venvs/mini_daemon/bin/activate
+```
+
+(For reference: app-related environments share `/venvs/apps_venv/bin/activate`.)
+
+After activating the environment, `pip list` now returns something meaningful, for example:
+
+```text
+reachy_mini   v1.1.0rc4
+```
+
+At this point, we know we are working in the right context.
+
+---
+
+## Step 4 — Updating the Daemon Package
+
+In my case, the issue was resolved by updating the daemon package:
+
+```bash
+pip install --upgrade --pre reachy-mini
+```
+
+The `--pre` flag is useful because Reachy Mini currently distributes pre-release builds as well.
+
+---
+
+## Step 5 — Restarting the Service
+
+Once updated, restart the daemon:
+
+```bash
+sudo systemctl restart reachy-mini-daemon.service
+```
+
+or reboot the robot.
+
+If everything is functioning correctly, the service should start cleanly again and the web interface should become available.
+
+---
+
+## Summary
+
+This process was about understanding how the system is structured and why it behaves the way it does. Reachy Mini is built on a clear and modern stack: Debian Linux, systemd services, isolated Python virtual environments and using FastAPI with Uvicorn as the web layer  
+
+Once you see that structure, debugging becomes logical.
+
+If you encounter a similar situation, I hope this walkthrough gives you a straightforward path to investigate and recover — and maybe a bit of confidence to peek under the hood when something doesn’t immediately work as expected.
