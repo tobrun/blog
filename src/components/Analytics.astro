@@ -1,0 +1,37 @@
+---
+interface Props {
+	measurementId: string;
+}
+
+const { measurementId } = Astro.props;
+
+// Only track in production (dev mode = console debug only)
+const isProduction = import.meta.env.PROD;
+---
+
+{isProduction ? (
+	<>
+		<!-- Google tag (gtag.js) -->
+		<script
+			async
+			src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
+		></script>
+		<script define:vars={{ measurementId }}>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag('js', new Date());
+			gtag('config', measurementId);
+		</script>
+	</>
+) : (
+	/* Dev mode: console logging only, no actual tracking */
+	<script define:vars={{ measurementId }}>
+		console.log(
+			'[Analytics Dev Mode] Page view tracking configured with ID:',
+			measurementId
+		);
+		console.log('[Analytics Dev Mode] URL:', window.location.href);
+	</script>
+)}
