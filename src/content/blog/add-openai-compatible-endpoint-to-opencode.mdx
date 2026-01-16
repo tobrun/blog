@@ -1,0 +1,116 @@
+---
+title: Local LLM with OpenCode
+description: How to configure OpenCode to use any OpenAI-compatible API endpoint, such as a local vLLM server.
+pubDate: 2026-01-16
+heroImage: ../../assets/opencode.png
+tags:
+  - OpenCode
+  - vLLM
+  - LLM
+  - Local AI
+---
+
+# Add any OpenAI compatible endpoint to OpenCode
+
+OpenCode doesn’t currently expose a simple “bring your own endpoint” option in its UI. Instead, it ships with a predefined list of cloud providers.  
+The good news is that OpenCode fully supports **OpenAI-compatible APIs**, which means you can plug in *any* compatible endpoint — including **vLLM**, LM Studio, Ollama (with a proxy), or your own custom server.
+
+This post shows how to wire up a **local vLLM server** as a provider, but the same approach works for *any* OpenAI-compatible endpoint.
+
+---
+
+## Prerequisites
+
+- OpenCode installed and working
+- A running OpenAI-compatible endpoint  
+  (for example: a local vLLM server on `http://<host>:8000/v1`)
+
+vLLM exposes a `/v1` API that matches OpenAI’s Chat Completions API, which makes it an ideal drop-in backend.
+
+---
+
+## Step 1 – Register the provider in OpenCode auth
+
+OpenCode stores provider authentication details in:
+
+```text
+~/.local/share/opencode/auth.json
+```
+
+If the file does not exist yet, create it.
+
+Add the following entry:
+
+```json
+{
+  "vllm": {
+    "type": "api",
+    "key": "sk-local"
+  }
+}
+```
+
+### Notes
+
+- vLLM does **not** require an API key, but OpenCode expects one to exist.
+- Any placeholder value works (`sk-local` is a common convention).
+- If `auth.json` already exists, merge the `vllm` block into the existing JSON.
+
+---
+
+## Step 2 – Define the OpenAI-compatible provider
+
+Now define the provider itself in:
+
+```text
+~/.config/opencode/opencode.json
+```
+
+Create the file if it doesn’t exist.
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "vllm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "vLLM (local)",
+      "options": {
+        "baseURL": "http://100.108.174.26:8000/v1"
+      },
+      "models": {
+        "Qwen3-Coder-30B-A3B-Instruct": {
+          "name": "My vLLM model"
+        }
+      }
+    }
+  },
+  "model": "vllm/Qwen3-Coder-30B-A3B-Instruct",
+  "small_model": "vllm/Qwen3-Coder-30B-A3B-Instruct"
+}
+```
+
+### Key fields explained
+
+- **`@ai-sdk/openai-compatible`**  
+  Tells OpenCode to treat this provider as OpenAI-compatible.
+- **`baseURL`**  
+  Must point to the `/v1` endpoint of your server.
+- **`models`**  
+  The key must exactly match the model ID exposed by the backend.
+- **`model` / `small_model`**  
+  Sets the default model used by OpenCode.
+
+---
+
+## Selecting your model
+
+After these steps, restart OpenCode if it’s running.
+
+You can now use:
+
+```text
+/model
+```
+
+Your custom provider and model will appear in the selection list.
