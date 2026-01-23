@@ -1,0 +1,71 @@
+---
+title: Stop Typing ssh user@ip — Use SSH Config
+description: A tiny SSH trick to save time and focus.
+pubDate: 2026-01-23
+heroImage: ../../assets/ssh.png
+tags:
+  - ssh
+  - linux
+  - devtools
+  - productivity
+---
+
+I'n facepalming that I'm only learning this now but my whole life I've been connecting to other computers with:
+
+```bash
+ssh admin@192.168.1.2
+```
+
+Over. And over. And over again.
+
+If that’s you also: no judgment, but we can do better.
+
+This is one of those *once you know it, you can’t unsee it*.
+
+---
+
+## The right solution: `~/.ssh/config`
+
+Instead of aliases, scripts, or shell hacks, let **SSH itself** do the work.
+
+Create (or edit) your SSH config:
+
+```bash
+code ~/.ssh/config
+```
+
+Add this:
+
+```sshconfig
+Host server
+    HostName 192.168.1.2
+    User admin
+```
+
+From now on:
+
+```bash
+ssh server
+```
+
+That’s it.
+
+No usernames. No IPs. No mental overhead.
+
+---
+
+## Bonus: auto‑attach tmux on login
+
+If you live in tmux (and if you don’t… you probably will), this is gold:
+
+```sshconfig
+Host server
+    HostName 192.168.1.2
+    User admin
+    RequestTTY yes
+    RemoteCommand tmux attach || tmux new
+```
+
+This instantly drops you into your session. Disconnect your computer, reconnect later — state intact.
+
+This is *especially* nice for long‑running agents or builds.
