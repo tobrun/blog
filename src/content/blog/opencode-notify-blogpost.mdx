@@ -1,0 +1,73 @@
+---
+title: Mobile Push Notifications With Opencode
+description: Getting notified when LLM Server finishes its work
+pubDate: 2026-01-24
+heroImage: ../../assets/opencodde-notify.png
+tags:
+  - Opencode
+  - llm
+  - workflow
+  - productivity
+---
+
+Lately, I’ve been very deliberately splitting my work into two distinct modes.
+
+The first is a more curated, quality-driven workflow where I use coding agents with line-by-line review. This is the mode I rely on when correctness and maintainability matter most, and it’s where I primarily work with Claude Code.
+
+The second mode is closer to vibe-coding: experimenting with more speculative ideas, exploring “crazy” concepts, and building small proof-of-concepts quickly. For this, I run local LLMs on my own server and connect via SSH to execute Opencode directly on the machine.
+
+By leveraging https://github.com/code-yeongyu/oh-my-opencode
+, I can run long-running plans autonomously. The downside, however, is that I often don’t notice when an agent has finished executing. To solve this, I put together a minimal setup that sends me a push notification whenever an Opencode coding agent becomes idle.
+
+So I ended up building **opencode-notify**.
+
+---
+
+## What opencode-notify Does
+
+`opencode-notify` is a tiny OpenCode plugin that sends **push notifications to your phone** using Pushover when a session finishes.
+
+---
+
+## Installation
+
+### 1. Set up Pushover
+
+1. Install [Pushover](https://pushover.net/) on your phone
+2. Create an account and note your **User Key**
+3. [Create an application](https://pushover.net/apps/build) and note the **API Token**
+
+### 2. Install the plugin
+
+```bash
+mkdir -p ~/.config/opencode/plugins
+curl -o ~/.config/opencode/plugins/opencode-notify.js \
+  https://raw.githubusercontent.com/tobrun/opencode-notify/main/index.js
+```
+
+### 3. Set environment variables
+
+Add to your shell profile:
+
+```bash
+export PUSHOVER_APP_TOKEN="your-app-token"
+export PUSHOVER_USER_KEY="your-user-key"
+```
+
+### 4. Restart OpenCode
+
+Done. The plugin loads automatically.
+
+---
+
+## Configuration
+
+| Variable             | Required | Description                |
+| -------------------- | -------- | -------------------------- |
+| `PUSHOVER_APP_TOKEN` | Yes      | Pushover application token |
+| `PUSHOVER_USER_KEY`  | Yes      | Pushover user key          |
+| `OPENCODE_NOTIFY`    | No       | Set to `0` to disable      |
+
+---
+
+Repo: https://github.com/tobrun/opencode-notify
